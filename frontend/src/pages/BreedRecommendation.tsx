@@ -112,19 +112,15 @@ export function BreedRecommendation() {
                 options={createOptions(formOptions.product)}
               ></Select>
               <TextField
-                onChange={(value) =>
-                  updateProperty("min_temperature", Number(value))
-                }
-                value={recommendationFormData.min_temperature}
+                onChange={(value) => updateProperty("min_temp", Number(value))}
+                value={recommendationFormData.min_temp}
                 autoComplete="none"
                 label="Min Temperature (°C)"
                 type="number"
               ></TextField>
               <TextField
-                onChange={(value) =>
-                  updateProperty("max_temperature", Number(value))
-                }
-                value={recommendationFormData.max_temperature}
+                onChange={(value) => updateProperty("max_temp", Number(value))}
+                value={recommendationFormData.max_temp}
                 autoComplete="none"
                 label="Max Temperature (°C)"
                 type="number"
@@ -146,23 +142,44 @@ export function BreedRecommendation() {
       >
         <Modal.Section>
           {recommendations.length && (
-            <List type="number">
-              {recommendations.map((recommendation: any) => (
-                <>
-                  <Text as="p">
-                    We have sent the recommendations in more detail to your
-                    email
-                  </Text>
-                  <List.Item key={recommendation.id}>
-                    {recommendation.name}
-                  </List.Item>
-                </>
-              ))}
-            </List>
+            <>
+              <Text as="p">
+                We found {recommendations.length}
+                {recommendations.length === 1
+                  ? " recommendation that suits "
+                  : " recommendations that suit "}
+                your needs and listed{" "}
+                {recommendations.length === 1 ? " it " : " them "} below.
+              </Text>
+              <List type="number">
+                {recommendations.map((recommendation: any) => (
+                  <>
+                    <List.Item key={recommendation.id}>
+                      {recommendation.breed_name}
+                    </List.Item>
+                  </>
+                ))}
+              </List>
+              <Text as="p">
+                We have sent the recommendations in more detail to your email (
+                {recommendationFormData.email})
+              </Text>
+            </>
           )}
           {!recommendations.length && (
-            <Text as="p">No recommendations found for the given data</Text>
+            <Text as="p">
+              We couldn't find recommendations found for the given parameters.
+            </Text>
           )}
+          <br />
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setModalOpen(false);
+            }}
+          >
+            Done
+          </Button>
         </Modal.Section>
       </Modal>
     </Page>

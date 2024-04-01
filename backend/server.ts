@@ -14,19 +14,24 @@ export function createServer(
   const app = express();
   app.use(express.json());
 
-  app.post("/api/animal/recommendation", async (req, res) => {
+  app.post("/api/crop/recommendation", async (req, res) => {
     const {
       name,
       email,
       crop_id,
       min_temp,
       max_temp,
-      average_annual_cold_hours,
       most_important_product_id,
-      min_soil_pH,
-      max_soil_pH,
       soil_type_id,
     } = req.body;
+
+    console.log(
+      min_temp,
+      max_temp,
+      most_important_product_id,
+      soil_type_id,
+      crop_id
+    );
 
     const cultivars = await prisma.cultivar.findMany({
       where: {
@@ -34,22 +39,10 @@ export function createServer(
           equals: crop_id,
         },
         min_temp_requirement: {
-          lte: max_temp,
+          lte: min_temp,
         },
         max_temp_requirement: {
-          gte: min_temp,
-        },
-        min_annual_cold_hours: {
-          lte: average_annual_cold_hours,
-        },
-        max_annual_cold_hours: {
-          gte: average_annual_cold_hours,
-        },
-        min_soil_pH: {
-          lte: max_soil_pH,
-        },
-        max_soil_pH: {
-          gte: min_soil_pH,
+          gte: max_temp,
         },
         soil_type_id: {
           equals: soil_type_id,
@@ -81,9 +74,6 @@ export function createServer(
       animal_id,
       min_temp,
       max_temp,
-      daily_feed_requirement,
-      daily_water_requirement,
-      annual_fertility_rate,
       most_important_product_id,
     } = req.body;
 
@@ -93,19 +83,10 @@ export function createServer(
           equals: animal_id,
         },
         min_temp_requirement: {
-          lte: max_temp,
+          lte: min_temp,
         },
         max_temp_requirement: {
-          gte: min_temp,
-        },
-        daily_feed_requirement: {
-          lte: daily_feed_requirement,
-        },
-        daily_water_requirement: {
-          lte: daily_water_requirement,
-        },
-        annual_fertility_rate: {
-          gte: annual_fertility_rate,
+          gte: max_temp,
         },
         expected_product_yields: {
           some: {

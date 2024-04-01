@@ -113,29 +113,16 @@ export function CultivarRecommendation() {
                 options={createOptions(formOptions.product)}
               ></Select>
               <TextField
-                value={recommendationFormData.min_temperature}
+                value={recommendationFormData.min_temp}
                 label="Minimum Temperature (°C)"
-                onChange={(value) =>
-                  updateProperty("min_temperature", Number(value))
-                }
+                onChange={(value) => updateProperty("min_temp", Number(value))}
                 autoComplete="none"
                 type="number"
               ></TextField>
               <TextField
-                value={recommendationFormData.max_temperature}
+                value={recommendationFormData.max_temp}
                 label="Maximum Temperature (°C)"
-                onChange={(value) =>
-                  updateProperty("max_temperature", Number(value))
-                }
-                autoComplete="none"
-                type="number"
-              ></TextField>
-              <TextField
-                value={recommendationFormData.max_temperature}
-                label="Average Annual Cold Hours"
-                onChange={(value) =>
-                  updateProperty("max_temperature", Number(value))
-                }
+                onChange={(value) => updateProperty("max_temp", Number(value))}
                 autoComplete="none"
                 type="number"
               ></TextField>
@@ -159,18 +146,44 @@ export function CultivarRecommendation() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
       >
-        {recommendations.length && (
-          <>
+        <Modal.Section>
+          {recommendations.length && (
+            <>
+              <Text as="p">
+                We found {recommendations.length}
+                {recommendations.length === 1
+                  ? " recommendation that suits "
+                  : " recommendations that suit "}
+                your needs and listed{" "}
+                {recommendations.length === 1 ? " it " : " them "} below.
+              </Text>
+              <List type="number">
+                {recommendations.map((recommendation: any, index: number) => (
+                  <List.Item key={index}>{recommendation.name}</List.Item>
+                ))}
+              </List>
+              <br />
+              <Text as="p">
+                We have sent the recommendations in more detail to your email (
+                {recommendationFormData.email})
+              </Text>
+            </>
+          )}
+          {!recommendations.length && (
             <Text as="p">
-              We have sent the recommendations in more detail to your email
+              We couldn't find recommendations found for the given parameters.
             </Text>
-            <List type="number">
-              {recommendations.map((recommendation: any, index: number) => (
-                <List.Item key={index}>{recommendation.name}</List.Item>
-              ))}
-            </List>
-          </>
-        )}
+          )}
+          <br />
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setModalOpen(false);
+            }}
+          >
+            Done
+          </Button>
+        </Modal.Section>
       </Modal>
     </Page>
   );
