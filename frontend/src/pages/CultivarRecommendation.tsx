@@ -1,0 +1,177 @@
+import { getFormOptions } from "../apiHelpers";
+import { useNavigate } from "react-router-dom";
+import { createOptions, createFormHelpers } from "../utils";
+import { useState, useEffect } from "react";
+import {
+  Page,
+  Form,
+  Text,
+  Card,
+  FormLayout,
+  TextField,
+  Select,
+  Button,
+  Modal,
+  List,
+} from "@shopify/polaris";
+
+export function CultivarRecommendation() {
+  const [recommendationFormData, setRecommendationFormData] = useState(
+    {} as any
+  );
+  const [recommendations, setRecommendations] = useState([]);
+  const [formOptions, setFormOptions] = useState({} as any);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const navigate = useNavigate();
+
+  const onMount = () => {
+    getFormOptions()
+      .then((data: any) => {
+        setFormOptions(data);
+        setLoading(false);
+      })
+      .catch((error: any) => {
+        console.log(error);
+        setError(true);
+        setLoading(false);
+      });
+  };
+
+  const { updateProperty } = createFormHelpers(
+    recommendationFormData,
+    setRecommendationFormData
+  );
+
+  const handleSubmit = () => {
+    // Submit form data to backend
+    fetch("/api/crop/recommendation", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(recommendationFormData),
+    })
+      .then(async (response) => {
+        const data = await response.json();
+        setRecommendations(data);
+        setModalOpen(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        setError(true);
+      });
+  };
+
+  useEffect(onMount, []);
+
+  return (
+    <Page
+      title="Crop Recommendation"
+      backAction={{ onAction: () => navigate("/") }}
+    >
+      <Card>
+        {loading && <Text as="p">Loading...</Text>}
+        {error && <Text as="p">Something went wrong while loading data</Text>}
+        {!loading && !error && (
+          <Form onSubmit={handleSubmit}>
+            <FormLayout>
+              <TextField
+                value={recommendationFormData.name}
+                onChange={(value) => {
+                  updateProperty("name", value);
+                }}
+                autoComplete="name"
+                label="Name"
+                placeholder="Enter your name here"
+              ></TextField>
+              <TextField
+                value={recommendationFormData.email}
+                onChange={(value) => {
+                  updateProperty("email", value);
+                }}
+                label="Email"
+                autoComplete="email"
+                placeholder="Enter your email here"
+              ></TextField>
+              <Select
+                value={recommendationFormData.crop_id}
+                label="Crop"
+                onChange={(value) => {
+                  updateProperty("crop_id", value);
+                }}
+                options={createOptions(formOptions.crop)}
+              ></Select>
+              <Select
+                value={recommendationFormData.most_important_product_id}
+                label="Most Important Product"
+                onChange={(value) => {
+                  updateProperty("most_important_product_id", value);
+                }}
+                options={createOptions(formOptions.product)}
+              ></Select>
+              <TextField
+                value={recommendationFormData.min_temperature}
+                label="Minimum Temperature (°C)"
+                onChange={(value) =>
+                  updateProperty("min_temperature", Number(value))
+                }
+                autoComplete="none"
+                type="number"
+              ></TextField>
+              <TextField
+                value={recommendationFormData.max_temperature}
+                label="Maximum Temperature (°C)"
+                onChange={(value) =>
+                  updateProperty("max_temperature", Number(value))
+                }
+                autoComplete="none"
+                type="number"
+              ></TextField>
+              <TextField
+                value={recommendationFormData.max_temperature}
+                label="Average Annual Cold Hours"
+                onChange={(value) =>
+                  updateProperty("max_temperature", Number(value))
+                }
+                autoComplete="none"
+                type="number"
+              ></TextField>
+              <Select
+                value={recommendationFormData.soil_type_id}
+                label="Soil Type"
+                onChange={(value) => {
+                  updateProperty("soil_type_id", value);
+                }}
+                options={createOptions(formOptions.soilType)}
+              ></Select>
+              <Button variant="primary" submit>
+                Get recommendation
+              </Button>
+            </FormLayout>
+          </Form>
+        )}
+      </Card>
+      <Modal
+        title="Recommendation"
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+      >
+        {recommendations.length && (
+          <>
+            <Text as="p">
+              We have sent the recommendations in more detail to your email
+            </Text>
+            <List type="number">
+              {recommendations.map((recommendation: any, index: number) => (
+                <List.Item key={index}>{recommendation.name}</List.Item>
+              ))}
+            </List>
+          </>
+        )}
+      </Modal>
+    </Page>
+  );
+}

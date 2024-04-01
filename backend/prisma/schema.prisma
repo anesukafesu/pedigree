@@ -1,0 +1,245 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Likelihood {
+  id               String            @id @default(uuid())
+  name             String
+  value            String
+  cultivar_disease CultivarDisease[]
+  breed_disease    BreedDisease[]
+  cultivar_pest    CultivarPest[]
+  breed_pest       BreedPest[]
+}
+
+model Product {
+  id              String                 @id @default(uuid())
+  name            String
+  cultivar_yields CultivarProductYield[]
+  breed_yields    BreedProductYield[]
+}
+
+model Animal {
+  id     String  @id @default(uuid())
+  name   String
+  breeds Breed[]
+}
+
+model Crop {
+  id        String     @id @default(uuid())
+  name      String
+  cultivars Cultivar[]
+}
+
+model SoilType {
+  id        String     @id @default(uuid())
+  name      String
+  cultivars Cultivar[]
+}
+
+model Fertiliser {
+  id           String                          @id @default(uuid())
+  name         String
+  applications CultivarFertiliserApplication[]
+}
+
+model Disease {
+  id        String            @id @default(uuid())
+  name      String
+  cultivars CultivarDisease[]
+  breeds    BreedDisease[]
+}
+
+model Pest {
+  id        String         @id @default(uuid())
+  name      String
+  cultivars CultivarPest[]
+  breeds    BreedPest[]
+}
+
+model SIUnit {
+  id                 String             @id @default(uuid())
+  name               String
+  plural_name        String
+  conventional_units ConventionalUnit[]
+}
+
+model ConventionalUnit {
+  id                             String                 @id @default(uuid())
+  name                           String
+  plural_name                    String
+  si_unit_id                     String
+  si_unit                        SIUnit                 @relation(fields: [si_unit_id], references: [id])
+  conversion_quotient_to_si_unit Float
+  cultivar_product_yields        CultivarProductYield[]
+  breed_product_yields           BreedProductYield[]
+}
+
+model Farmer {
+  id                       String                   @id @default(uuid())
+  name                     String
+  email                    String
+  cultivar_recommendations CultivarRecommendation[]
+  breed_recommendations    BreedRecommendation[]
+}
+
+model Supplier {
+  id                              String     @id @default(uuid())
+  name                            String
+  email                           String
+  password                        String
+  password_reset_token            String?
+  password_reset_token_expiration DateTime?
+  cultivars                       Cultivar[]
+  breeds                          Breed[]
+}
+
+model Cultivar {
+  id                    String   @id @default(uuid())
+  name                  String
+  crop_id               String
+  crop                  Crop     @relation(fields: [crop_id], references: [id])
+  supplier_id           String
+  supplier              Supplier @relation(fields: [supplier_id], references: [id])
+  min_temp_requirement  Float
+  max_temp_requirement  Float
+  min_daily_irrigation  Float
+  max_daily_irrigation  Float
+  min_annual_cold_hours Float
+  max_annual_cold_hours Float
+  min_soil_pH           Float
+  max_soil_pH           Float
+  soil_type_id          String
+  soil_type             SoilType @relation(fields: [soil_type_id], references: [id])
+
+  fertiliser_applications    CultivarFertiliserApplication[]
+  diseases                   CultivarDisease[]
+  pests                      CultivarPest[]
+  recommendations_to_farmers CultivarRecommendation[]
+  expected_product_yields    CultivarProductYield[]
+}
+
+model CultivarProductYield {
+  id                        String           @id @default(uuid())
+  cultivar_id               String
+  cultivar                  Cultivar         @relation(fields: [cultivar_id], references: [id])
+  product_id                String
+  product                   Product          @relation(fields: [product_id], references: [id])
+  average_quantity_produced Float
+  product_unit_id           String
+  product_unit              ConventionalUnit @relation(fields: [product_unit_id], references: [id])
+}
+
+model CultivarFertiliserApplication {
+  id                        String     @id @default(uuid())
+  cultivar_id               String
+  cultivar                  Cultivar   @relation(fields: [cultivar_id], references: [id])
+  fertiliser_id             String
+  fertiliser                Fertiliser @relation(fields: [fertiliser_id], references: [id])
+  milestone_for_application String
+  quantity_per_plant        Float
+}
+
+model CultivarDisease {
+  id                           String     @id @default(uuid())
+  cultivar_id                  String
+  cultivar                     Cultivar   @relation(fields: [cultivar_id], references: [id])
+  disease_id                   String
+  disease                      Disease    @relation(fields: [disease_id], references: [id])
+  disease_incidence_likelihood Likelihood @relation(fields: [likelihoodId], references: [id])
+  treatment                    String
+  precaution                   String
+  likelihoodId                 String
+}
+
+model CultivarPest {
+  id                           String     @id @default(uuid())
+  cultivar_id                  String
+  cultivar                     Cultivar   @relation(fields: [cultivar_id], references: [id])
+  pest_id                      String
+  pest                         Pest       @relation(fields: [pest_id], references: [id])
+  treatment                    String
+  precaution                   String
+  pest_incidence_likelihood_id String
+  pest_incidence_likelihood    Likelihood @relation(fields: [pest_incidence_likelihood_id], references: [id])
+}
+
+model CultivarRecommendation {
+  id          String   @id @default(uuid())
+  date        DateTime
+  cultivar_id String
+  cultivar    Cultivar @relation(fields: [cultivar_id], references: [id])
+  farmer_id   String
+  farmer      Farmer   @relation(fields: [farmer_id], references: [id])
+}
+
+model Breed {
+  id                         String                @id @default(uuid())
+  animal_id                  String
+  animal                     Animal                @relation(fields: [animal_id], references: [id])
+  supplier_id                String
+  supplier                   Supplier              @relation(fields: [supplier_id], references: [id])
+  breed_name                 String
+  daily_feed_requirement     Float
+  daily_water_requirement    Float
+  min_temp_requirement       Float
+  max_temp_requirement       Float
+  annual_fertility_rate      Float
+  recommendations_to_farmers BreedRecommendation[]
+  expected_product_yields    BreedProductYield[]
+  diseases                   BreedDisease[]
+  pests                      BreedPest[]
+}
+
+model BreedProductYield {
+  id                        String           @id @default(uuid())
+  breed_id                  String
+  breed                     Breed            @relation(fields: [breed_id], references: [id])
+  product_id                String
+  product                   Product          @relation(fields: [product_id], references: [id])
+  product_unit_id           String
+  product_unit              ConventionalUnit @relation(fields: [product_unit_id], references: [id])
+  average_quantity_produced Float
+}
+
+model BreedRecommendation {
+  id             String   @id @default(uuid())
+  date           DateTime
+  breed_id       String
+  breed          Breed    @relation(fields: [breed_id], references: [id])
+  farmer_id      String
+  farmer         Farmer   @relation(fields: [farmer_id], references: [id])
+  breed_feedback String
+}
+
+model BreedDisease {
+  id                               String     @id @default(uuid())
+  breed_id                         String
+  breed                            Breed      @relation(fields: [breed_id], references: [id])
+  disease_id                       String
+  disease                          Disease    @relation(fields: [disease_id], references: [id])
+  diseases_incidence_likelihood_id String
+  disease_incidence_likelihood     Likelihood @relation(fields: [diseases_incidence_likelihood_id], references: [id])
+  treatment                        String
+  precaution                       String
+}
+
+model BreedPest {
+  id                           String     @id @default(uuid())
+  breed_id                     String
+  breed                        Breed      @relation(fields: [breed_id], references: [id])
+  pest_id                      String
+  pest                         Pest       @relation(fields: [pest_id], references: [id])
+  pest_incidence_likelihood_id String
+  pest_incidence_likelihood    Likelihood @relation(fields: [pest_incidence_likelihood_id], references: [id])
+  treatment                    String
+  precaution                   String
+}
