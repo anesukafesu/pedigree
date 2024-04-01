@@ -2,6 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import { SessionManager } from "./sessions";
 import express from "express";
 import bcrypt from "bcrypt";
+import { config } from "dotenv";
+import { Mailer } from "./mailer";
+config();
 
 export function createServer(
   sessions: SessionManager,
@@ -11,6 +14,12 @@ export function createServer(
   const SALT_ROUNDS = 10;
 
   const prisma = new PrismaClient();
+
+  const mailer = new Mailer(
+    process.env.EMAIL as string,
+    process.env.PASSWORD as string
+  );
+
   const app = express();
   app.use(express.json());
 
@@ -24,14 +33,6 @@ export function createServer(
       most_important_product_id,
       soil_type_id,
     } = req.body;
-
-    console.log(
-      min_temp,
-      max_temp,
-      most_important_product_id,
-      soil_type_id,
-      crop_id
-    );
 
     const cultivars = await prisma.cultivar.findMany({
       where: {
@@ -56,13 +57,38 @@ export function createServer(
         },
       },
       include: {
+        supplier: true,
+        soil_type: true,
         crop: true,
-        diseases: true,
-        pests: true,
-        fertiliser_applications: true,
-        expected_product_yields: true,
+        diseases: {
+          include: {
+            disease: true,
+            disease_incidence_likelihood: true,
+          },
+        },
+        pests: {
+          include: {
+            pest: true,
+            pest_incidence_likelihood: true,
+          },
+        },
+        fertiliser_applications: {
+          include: {
+            fertiliser: true,
+          },
+        },
+        expected_product_yields: {
+          include: {
+            product: true,
+            product_unit: true,
+          },
+        },
       },
     });
+
+    if (cultivars.length > 0) {
+      await mailer.sendRecommendation("crop", email, name, cultivars);
+    }
 
     res.json(cultivars);
   });
@@ -97,12 +123,32 @@ export function createServer(
         },
       },
       include: {
+        supplier: true,
         animal: true,
-        diseases: true,
-        pests: true,
-        expected_product_yields: true,
+        diseases: {
+          include: {
+            disease: true,
+            disease_incidence_likelihood: true,
+          },
+        },
+        pests: {
+          include: {
+            pest: true,
+            pest_incidence_likelihood: true,
+          },
+        },
+        expected_product_yields: {
+          include: {
+            product: true,
+            product_unit: true,
+          },
+        },
       },
     });
+
+    if (breeds.length > 0) {
+      await mailer.sendRecommendation("animal", email, name, breeds);
+    }
 
     res.json(breeds);
   });

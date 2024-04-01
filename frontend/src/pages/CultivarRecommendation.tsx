@@ -165,7 +165,8 @@ export function CultivarRecommendation() {
               <br />
               <Text as="p">
                 We have sent the recommendations in more detail to your email (
-                {recommendationFormData.email})
+                {recommendationFormData.email}). Be sure to check you spam
+                folder if you cannot find the email in your inbox.
               </Text>
             </>
           )}

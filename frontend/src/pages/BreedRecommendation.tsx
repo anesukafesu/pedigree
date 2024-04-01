@@ -153,11 +153,9 @@ export function BreedRecommendation() {
               </Text>
               <List type="number">
                 {recommendations.map((recommendation: any) => (
-                  <>
-                    <List.Item key={recommendation.id}>
-                      {recommendation.breed_name}
-                    </List.Item>
-                  </>
+                  <List.Item key={recommendation.id}>
+                    {recommendation.breed_name}
+                  </List.Item>
                 ))}
               </List>
               <Text as="p">
@@ -169,6 +167,8 @@ export function BreedRecommendation() {
           {!recommendations.length && (
             <Text as="p">
               We couldn't find recommendations found for the given parameters.
+              Be sure to check you spam folder if you cannot find the email in
+              your inbox.
             </Text>
           )}
           <br />
