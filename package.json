@@ -2,8 +2,10 @@
   "name": "pedigree",
   "author": "Anesu Kafesu",
   "scripts": {
-    "build": "./build.sh",
-    "start": "./start.sh",
-    "dev": "./dev.sh"
+    "build": "bash ./build.sh",
+    "start": "bash ./start.sh"
+  },
+  "dependencies": {
+    "ts-node": "^10.9.2"
   }
 }

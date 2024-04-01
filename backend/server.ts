@@ -3,12 +3,31 @@ import { SessionManager } from "./sessions";
 import express from "express";
 import bcrypt from "bcrypt";
 
-export function createServer(sessions: SessionManager, verifyAuth: any) {
+export function createServer(
+  sessions: SessionManager,
+  verifyAuth: any,
+  env: string = "development"
+) {
   const SALT_ROUNDS = 10;
 
   const prisma = new PrismaClient();
   const app = express();
   app.use(express.json());
+
+  if (env === "production") {
+    console.log("Running server in production");
+
+    // Static frontend folder
+    const dist = "frontend/dist";
+
+    // Serving middleware
+    app.use(express.static("frontend/dist"));
+
+    // Sending index.html
+    app.get("/*", (req, res) => {
+      res.sendFile(`${process.cwd()}/${dist}/index.html`);
+    });
+  }
 
   app.post("/api/animal/recommendation", async (req, res) => {
     const {

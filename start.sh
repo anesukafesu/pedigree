@@ -1,2 +1,1 @@
-cd backend
-npm start
+NODE_ENV=production npx ts-node backend/index.ts -y
