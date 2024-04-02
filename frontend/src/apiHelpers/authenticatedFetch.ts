@@ -1,7 +1,8 @@
-import { store } from "../stores";
-
-export function authenticatedFetch(url: string, options: RequestInit = {}) {
-  const token = store.getState()["token"];
+export async function authenticatedFetch(
+  url: string,
+  options: RequestInit = {}
+) {
+  const token = window.localStorage.getItem("token");
   if (!token) {
     throw new Error("No token found");
   }
@@ -13,6 +14,13 @@ export function authenticatedFetch(url: string, options: RequestInit = {}) {
       Authorization: token,
     },
   };
+
+  const response = await fetch(url, optionsWithAuth);
+
+  // User session has expired and must login again
+  if (response.status === 440) {
+    window.location.href = "/suppliers/login";
+  }
 
   return fetch(url, optionsWithAuth);
 }

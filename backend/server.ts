@@ -1,9 +1,10 @@
-import { PrismaClient } from "@prisma/client";
-import { SessionManager } from "./sessions";
 import express from "express";
 import bcrypt from "bcrypt";
+import { PrismaClient } from "@prisma/client";
+import { SessionManager } from "./sessions";
 import { config } from "dotenv";
 import { Mailer } from "./mailer";
+import { v4 as uuid } from "uuid";
 config();
 
 export function createServer(
@@ -187,7 +188,7 @@ export function createServer(
     }
 
     // Supplier exists in the database, so we check the password
-    bcrypt.compare(password, supplier.password, (err, result) => {
+    bcrypt.compare(password, supplier.password, async (err, result) => {
       if (err) {
         return res.status(500).json({ message: "Internal server error" });
       }
@@ -197,8 +198,8 @@ export function createServer(
       }
 
       // Password is correct, so we create a session
-      const token = Math.random().toString(36).substring(2);
-      sessions.set(token, supplier.id);
+      const token = uuid();
+      await sessions.createSession(token, supplier.id);
       res.json({ token });
     });
   });

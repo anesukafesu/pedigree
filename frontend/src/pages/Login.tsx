@@ -35,15 +35,17 @@ export function Login() {
     });
 
     if (response.ok) {
-      const data = await response.json();
+      const { token } = await response.json();
+      const SESSION_DURATION = 3 * 60 * 60 * 1000 - 30_000;
 
-      // Store token in Redux store
-      dispatch({
-        type: "SET_TOKEN",
-        payload: {
-          token: data.token,
-        },
-      });
+      // Set a logout timeout
+      setTimeout(() => {
+        window.localStorage.removeItem("token");
+        navigate("/suppliers/login");
+      }, SESSION_DURATION);
+
+      // Store token in local storage
+      window.localStorage.setItem("token", token);
 
       // Redirect to dashboard page
       navigate("/suppliers/");

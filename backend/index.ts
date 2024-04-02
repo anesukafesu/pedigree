@@ -1,8 +1,10 @@
 import { createServer } from "./server";
-import { createLowdbSessions } from "./sessions";
 import { createVerifyAuth } from "./middleware";
+import { createLowdbSessions } from "./sessions";
 
-createLowdbSessions()
+const SESSION_DURATION = 3 * 60 * 60 * 1000;
+
+createLowdbSessions(SESSION_DURATION)
   .then((sessions) => {
     const verifyAuth = createVerifyAuth(sessions);
     const env = process.env.NODE_ENV;
