@@ -505,6 +505,12 @@ export function createServer(
     res.json(cultivar);
   });
 
+  app.delete("/api/cultivars", verifyAuth, async (req, res) => {
+    const supplierId = res.locals.supplierId;
+
+    const { id } = req.body;
+  });
+
   if (env === "production") {
     console.log("Running server in production");
 
