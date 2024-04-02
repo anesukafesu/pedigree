@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   Page,
@@ -15,8 +14,6 @@ import {
 export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleEmailChange = useCallback((value: string) => setEmail(value), []);
