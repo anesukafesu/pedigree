@@ -72,24 +72,24 @@ function createUpdateProperty(data: any, setData: any) {
 export function createFormHelpers(data: any, setData: any) {
   const itemTemplates = {
     pests: {
-      pest_id: "209861e1-6877-4064-8aae-d5080b604e25",
-      pest_incidence_likelihood_id: "b06d07b4-1ceb-4b11-a6ba-2f7ff4a65e49",
+      pest_id: "52a4d0a9-9ef0-4121-9161-f82dafb1d1bd",
+      pest_incidence_likelihood_id: "e139caf8-e8dc-4395-a40f-f19d9df65a5d",
       treatment: "",
       precaution: "",
     },
     expected_product_yields: {
-      product_id: "67ae9d7e-a997-4a01-ac56-91bda0ec14c4",
-      product_unit_id: "ec0e9f76-5c59-4ed2-a93d-2b10f52a4b6b",
+      product_id: "f057d88b-11ad-44be-b300-5c41d46cb1df",
+      product_unit_id: "3af4cd73-d7bb-41df-b229-838e4c7ee8b9",
       average_quantity_produced: 0,
     },
     diseases: {
-      disease_id: "1c330f6e-86d2-41c3-a487-c3ae9e4fd1e5",
-      disease_incidence_likelihood_id: "b06d07b4-1ceb-4b11-a6ba-2f7ff4a65e49",
+      disease_id: "1d7f6b47-500a-455c-80c6-203ae7eb778a",
+      disease_incidence_likelihood_id: "e139caf8-e8dc-4395-a40f-f19d9df65a5d",
       treatment: "",
       precaution: "",
     },
     fertiliser_applications: {
-      fertiliser_id: "44f18c41-deb4-4df0-b655-dd9af7d60ad9",
+      fertiliser_id: "b459d4d8-2ff7-4c91-a04e-583f42044a85",
       milestone_for_application: "",
       quantity_per_plant: 0,
     },

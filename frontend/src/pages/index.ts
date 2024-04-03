@@ -7,3 +7,4 @@ export { EditBreed } from "./EditBreed.tsx";
 export { EditCultivar } from "./EditCultivar.tsx";
 export { BreedRecommendation } from "./BreedRecommendation.tsx";
 export { CultivarRecommendation } from "./CultivarRecommendation.tsx";
+export { Delete } from "./Delete.tsx";

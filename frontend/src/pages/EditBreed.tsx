@@ -34,6 +34,10 @@ export function EditBreed() {
     setBreed
   );
 
+  const handleDelete = () => {
+    navigate(`/suppliers/delete/breeds/${params.id}`);
+  };
+
   const handleSubmit = () => {
     authenticatedFetch("/api/breeds", {
       method: "POST",
@@ -44,7 +48,6 @@ export function EditBreed() {
     })
       .then((response) => {
         console.log("Success:", response);
-        store.dispatch({ type: "ADD_BREED", payload: breed });
         navigate("/suppliers/");
       })
       .catch((error) => {
@@ -74,37 +77,29 @@ export function EditBreed() {
             options={createOptions(formOptions.animal)}
           ></Select>
           <TextField
-            value={breed.daily_feed_requirement}
-            onChange={(value) =>
-              updateProperty("daily_feed_requirement", Number(value))
-            }
+            value={breed.daily_feed}
+            onChange={(value) => updateProperty("daily_feed", Number(value))}
             label="Daily Feed Requirement (kg)"
             type="number"
             autoComplete="none"
           ></TextField>
           <TextField
-            value={breed.daily_water_requirement}
-            onChange={(value) =>
-              updateProperty("daily_water_requirement", Number(value))
-            }
+            value={breed.daily_water}
+            onChange={(value) => updateProperty("daily_water", Number(value))}
             label="Daily Water Requirement (L)"
             type="number"
             autoComplete="none"
           ></TextField>
           <TextField
-            value={breed.min_temp_requirement}
-            onChange={(value) =>
-              updateProperty("min_temp_requirement", Number(value))
-            }
+            value={breed.min_temp}
+            onChange={(value) => updateProperty("min_temp", Number(value))}
             label="Min Temperature (°C)"
             type="number"
             autoComplete="none"
           ></TextField>
           <TextField
-            value={breed.max_temp_requirement}
-            onChange={(value) =>
-              updateProperty("max_temp_requirement", Number(value))
-            }
+            value={breed.max_temp}
+            onChange={(value) => updateProperty("max_temp", Number(value))}
             label="Max Temperature (°C)"
             type="number"
             autoComplete="none"
@@ -188,9 +183,15 @@ export function EditBreed() {
         </FormLayout>
         <br />
         <Button variant="primary" submit>
-          Add new Breed
-        </Button>
+          Save
+        </Button>{" "}
+        {params.id != "new" && (
+          <Button variant="secondary" onClick={handleDelete}>
+            Delete breed
+          </Button>
+        )}
       </Form>
+      <br />
     </Page>
   );
 }

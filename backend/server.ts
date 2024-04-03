@@ -5,6 +5,7 @@ import { SessionManager } from "./sessions";
 import { config } from "dotenv";
 import { Mailer } from "./mailer";
 import { v4 as uuid } from "uuid";
+import { filterDuplicateRequests } from "./middleware";
 config();
 
 export function createServer(
@@ -23,6 +24,7 @@ export function createServer(
 
   const app = express();
   app.use(express.json());
+  app.use("/api/*", filterDuplicateRequests);
 
   app.post("/api/crop/recommendation", async (req, res) => {
     const {
@@ -40,10 +42,10 @@ export function createServer(
         crop_id: {
           equals: crop_id,
         },
-        min_temp_requirement: {
+        min_temp: {
           lte: min_temp,
         },
-        max_temp_requirement: {
+        max_temp: {
           gte: max_temp,
         },
         soil_type_id: {
@@ -109,10 +111,10 @@ export function createServer(
         animal_id: {
           equals: animal_id,
         },
-        min_temp_requirement: {
+        min_temp: {
           lte: min_temp,
         },
-        max_temp_requirement: {
+        max_temp: {
           gte: max_temp,
         },
         expected_product_yields: {
@@ -301,6 +303,7 @@ export function createServer(
         diseases: true,
         pests: true,
         fertiliser_applications: true,
+        expected_product_yields: true,
       },
     });
 
@@ -314,10 +317,10 @@ export function createServer(
     const {
       breed_name,
       animal_id,
-      daily_feed_requirement,
-      daily_water_requirement,
-      min_temp_requirement,
-      max_temp_requirement,
+      daily_feed,
+      daily_water,
+      min_temp,
+      max_temp,
       annual_fertility_rate,
       expected_product_yields,
       diseases,
@@ -327,10 +330,10 @@ export function createServer(
     const breed = await prisma.breed.create({
       data: {
         breed_name,
-        daily_feed_requirement,
-        daily_water_requirement,
-        min_temp_requirement,
-        max_temp_requirement,
+        daily_feed,
+        daily_water,
+        min_temp,
+        max_temp,
         annual_fertility_rate,
         supplier_id: supplierId,
         animal_id,
@@ -398,8 +401,8 @@ export function createServer(
     const {
       name,
       crop_id,
-      min_temp_requirement,
-      max_temp_requirement,
+      min_temp,
+      max_temp,
       min_daily_irrigation,
       max_daily_irrigation,
       min_annual_cold_hours,
@@ -417,8 +420,8 @@ export function createServer(
       data: {
         name,
         crop_id,
-        min_temp_requirement,
-        max_temp_requirement,
+        min_temp,
+        max_temp,
         min_daily_irrigation,
         max_daily_irrigation,
         min_annual_cold_hours,
@@ -505,10 +508,195 @@ export function createServer(
     res.json(cultivar);
   });
 
+  app.put("/api/cultivars", verifyAuth, async (req, res) => {
+    const supplierId = res.locals.supplierId;
+
+    const {
+      id,
+      name,
+      crop_id,
+      min_temp,
+      max_temp,
+      min_daily_irrigation,
+      max_daily_irrigation,
+      min_annual_cold_hours,
+      max_annual_cold_hours,
+      min_soil_pH,
+      max_soil_pH,
+      soil_type_id,
+      diseases,
+      pests,
+      expected_product_yields,
+      fertiliser_applications,
+    } = req.body;
+
+    console.log(diseases);
+
+    if (!id) {
+      return res.status(400).json({ message: "Required id field is missing." });
+    }
+
+    const cultivar = await prisma.cultivar.findFirst({
+      where: { id: { equals: id } },
+    });
+
+    if (!cultivar) {
+      return res
+        .status(404)
+        .json({ message: "Resource to update could not be found." });
+    }
+
+    if (cultivar.supplier_id != supplierId) {
+      return res.status(403).json({
+        message: "You do not have the authorisation to modify this record",
+      });
+    }
+
+    await prisma.cultivar.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+        crop_id,
+        min_temp,
+        max_temp,
+        min_daily_irrigation,
+        max_daily_irrigation,
+        min_annual_cold_hours,
+        max_annual_cold_hours,
+        min_soil_pH,
+        max_soil_pH,
+        soil_type_id,
+        fertiliser_applications: {
+          deleteMany: {
+            cultivar_id: {
+              equals: id,
+            },
+          },
+          createMany: {
+            data: fertiliser_applications.map((fertiliserApplication: any) => ({
+              quantity_per_plant: fertiliserApplication.quantity_per_plant,
+              milestone_for_application:
+                fertiliserApplication.milestone_for_application,
+              fertiliser_id: fertiliserApplication.fertiliser_id,
+            })),
+          },
+        },
+        diseases: {
+          deleteMany: {
+            cultivar_id: {
+              equals: id,
+            },
+          },
+          createMany: {
+            data: diseases.map((disease: any) => ({
+              treatment: disease.treatment,
+              precautions: disease.precaution,
+              disease_incidence_likelihood_id:
+                disease.disease_incidence_likelihood_id,
+              disease_id: disease.disease_id,
+            })),
+          },
+        },
+        pests: {
+          deleteMany: {
+            cultivar_id: {
+              equals: id,
+            },
+          },
+          createMany: {
+            data: pests.map((pest: any) => ({
+              treatment: pest.treatment,
+              precautions: pest.precaution,
+              pest_incidence_likelihood_id: pest.pest_incidence_likelihood_id,
+              pest_id: pest.pest_id,
+            })),
+          },
+        },
+        expected_product_yields: {
+          deleteMany: {
+            cultivar_id: {
+              equals: id,
+            },
+          },
+          createMany: {
+            data: expected_product_yields.map((expectedProductYield: any) => ({
+              average_quantity_produced:
+                expectedProductYield.average_quantity_produced,
+              product_id: expectedProductYield.product_id,
+              product_unit_id: expectedProductYield.product_unit_id,
+            })),
+          },
+        },
+      },
+    });
+
+    res.status(200).json({ message: "All went well" });
+  });
+
   app.delete("/api/cultivars", verifyAuth, async (req, res) => {
     const supplierId = res.locals.supplierId;
 
-    const { id } = req.body;
+    const id = req.body.id;
+    if (!id) {
+      return res.status(400).json({ message: "Required id field is missing." });
+    }
+
+    const cultivar = await prisma.cultivar.findFirst({
+      where: { id: { equals: id } },
+    });
+
+    if (!cultivar) {
+      return res
+        .status(404)
+        .json({ message: "Specified resource could not be found." });
+    }
+
+    if (cultivar.supplier_id === supplierId) {
+      await prisma.cultivar.delete({
+        where: {
+          id: id,
+        },
+      });
+      return res.status(200).json({ message: "Deleted successfully." });
+    } else {
+      return res.status(403).json({
+        message: "You do not have authorisation to delete requested resource",
+      });
+    }
+  });
+
+  app.delete("/api/breeds", verifyAuth, async (req, res) => {
+    const supplierId = res.locals.supplierId;
+
+    const id = req.body.id;
+    if (!id) {
+      return res.status(400).json({ message: "Required id field is missing." });
+    }
+
+    const breed = await prisma.breed.findFirst({
+      where: { id: { equals: id } },
+    });
+
+    if (!breed) {
+      return res
+        .status(404)
+        .json({ message: "Specified resource could not be found." });
+    }
+
+    if (breed.supplier_id === supplierId) {
+      await prisma.breed.delete({
+        where: {
+          id: id,
+        },
+      });
+      return res.status(200).json({ message: "Deleted successfully." });
+    } else {
+      return res.status(403).json({
+        message: "You do not have authorisation to delete requested resource",
+      });
+    }
   });
 
   if (env === "production") {

@@ -2,6 +2,7 @@ import { OptionList, Text } from "@shopify/polaris";
 import { authenticatedFetch } from "../apiHelpers";
 import { useDispatch, useStore } from "react-redux";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function CultivarsList() {
   const [loading, setLoading] = useState(true);
@@ -9,6 +10,7 @@ export function CultivarsList() {
 
   const dispatch = useDispatch();
   const store = useStore();
+  const navigate = useNavigate();
 
   // @ts-ignore
   const cultivars: any[] = store.getState().cultivars;
@@ -38,7 +40,9 @@ export function CultivarsList() {
         </Text>
         <OptionList
           selected={[]}
-          onChange={() => {}}
+          onChange={(id) => {
+            navigate(`/suppliers/edit-cultivar/${id}`);
+          }}
           //@ts-ignore
           options={store.getState().cultivars.map((cultivar: any) => ({
             label: `${cultivar.name} (${cultivar.crop.name})`,

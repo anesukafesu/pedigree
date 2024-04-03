@@ -30,7 +30,11 @@ export function EditCultivar() {
   const initialState =
     params.id == "new"
       ? createInitialState("cultivar")
-      : cultivars.find((cultivar: any) => cultivar.id == params.id);
+      : JSON.parse(
+          JSON.stringify(
+            cultivars.find((cultivar: any) => cultivar.id == params.id)
+          )
+        );
 
   const [cultivar, setCultivar] = useState(initialState);
 
@@ -40,11 +44,14 @@ export function EditCultivar() {
   );
   const handleSubmit = () => {
     authenticatedFetch("/api/cultivars", {
-      method: "POST",
+      method: params.id === "new" ? "POST" : "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(cultivar),
+      body: JSON.stringify({
+        ...cultivar,
+        id: params.id === "new" ? undefined : params.id,
+      }),
     })
       .then((response) => {
         console.log("Success:", response);
@@ -55,6 +62,10 @@ export function EditCultivar() {
         console.error("Error:", error);
         alert("Error creating cultivar");
       });
+  };
+
+  const handleDelete = () => {
+    navigate(`/suppliers/delete/cultivars/${params.id}`);
   };
 
   return (
@@ -80,18 +91,18 @@ export function EditCultivar() {
             label="Minimum Temperature Requirement (°C)"
             autoComplete="none"
             type="number"
-            value={cultivar.min_temp_requirement}
+            value={cultivar.min_temp}
             onChange={(value) => {
-              updateProperty("min_temp_requirement", Number(value));
+              updateProperty("min_temp", Number(value));
             }}
           ></TextField>
           <TextField
             label="Max Temperature Requirement (°C)"
             autoComplete="none"
             type="number"
-            value={cultivar.max_temp_requirement}
+            value={cultivar.max_temp}
             onChange={(value) => {
-              updateProperty("max_temp_requirement", Number(value));
+              updateProperty("max_temp", Number(value));
             }}
           ></TextField>
           <TextField
@@ -241,12 +252,18 @@ export function EditCultivar() {
           >
             Add Fertiliser Application
           </Button>
-          <br />
-          <Button variant="primary" submit>
-            Record New Cultivar
-          </Button>
         </FormLayout>
+        <br />
+        <Button variant="primary" submit>
+          Save
+        </Button>{" "}
+        {params.id != "new" && (
+          <Button variant="secondary" onClick={handleDelete}>
+            Delete
+          </Button>
+        )}
       </Form>
+      <br />
     </Page>
   );
 }

@@ -9,6 +9,7 @@ import {
   Suppliers,
   BreedRecommendation,
   CultivarRecommendation,
+  Delete,
 } from "./pages";
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/suppliers/" Component={Suppliers} />
         <Route path="/suppliers/edit-breed/:id" Component={EditBreed} />
         <Route path="/suppliers/edit-cultivar/:id" Component={EditCultivar} />
+        <Route path="/suppliers/delete/:type/:id" Component={Delete} />
       </Routes>
     </BrowserRouter>
   );

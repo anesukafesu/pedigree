@@ -20,7 +20,7 @@ export async function authenticatedFetch(
   // User session has expired and must login again
   if (response.status === 440) {
     window.location.href = "/suppliers/login";
+  } else {
+    return response;
   }
-
-  return fetch(url, optionsWithAuth);
 }

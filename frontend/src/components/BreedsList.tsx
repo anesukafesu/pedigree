@@ -2,6 +2,7 @@ import { OptionList, Text } from "@shopify/polaris";
 import { authenticatedFetch } from "../apiHelpers";
 import { useDispatch, useStore } from "react-redux";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function BreedsList() {
   const [loading, setLoading] = useState(true);
@@ -9,6 +10,7 @@ export function BreedsList() {
 
   const dispatch = useDispatch();
   const store = useStore();
+  const navigate = useNavigate();
 
   // @ts-ignore
   const breeds: any[] = store.getState().breeds;
@@ -38,7 +40,9 @@ export function BreedsList() {
         </Text>
         <OptionList
           selected={[]}
-          onChange={() => {}}
+          onChange={(id) => {
+            navigate(`/suppliers/edit-breed/${id}`);
+          }}
           //@ts-ignore
           options={store.getState().breeds.map((breed: any) => ({
             label: `${breed.breed_name} (${breed.animal.name})`,
