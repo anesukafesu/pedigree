@@ -45,7 +45,7 @@ export function BreedsList() {
           }}
           //@ts-ignore
           options={store.getState().breeds.map((breed: any) => ({
-            label: `${breed.breed_name} (${breed.animal.name})`,
+            label: `${breed.name} (${breed.animal.name})`,
             value: breed.id,
           }))}
         ></OptionList>

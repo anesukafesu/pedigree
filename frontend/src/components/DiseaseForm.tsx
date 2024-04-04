@@ -55,9 +55,9 @@ export function DiseaseForm({
       <Grid.Cell columnSpan={{ xs: 2 }}>
         <TextField
           onChange={(value) => {
-            updateItem("diseases", index, "precaution", value);
+            updateItem("diseases", index, "precautions", value);
           }}
-          value={disease.precaution}
+          value={disease.precautions}
           label="Precautions"
           autoComplete="None"
           multiline

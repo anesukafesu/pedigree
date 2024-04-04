@@ -52,85 +52,97 @@ export class Mailer {
         Based on the parameters you provided on our website. Here's our list of the best ${recommendations[0].animal.name.toLowerCase()} breeds to invest in.
       </p>
 
-      ${recommendations.map((recommendation: any) => {
-        return `
-          <h2>${recommendation.breed_name}</h2>
-          <p><strong>Breed Name:</strong> ${recommendation.breed_name}</p>
-          <p><strong>Animal:</strong> ${recommendation.animal.name}</p>
-          <p><strong>Supplier:</strong> ${recommendation.supplier.name} (${
-          recommendation.supplier.email
-        })</p>
-          <p><strong>Temperature:</strong> ${
-            recommendation.min_temp_requirement
-          } °C - ${recommendation.max_temp_requirement}°C</p>
-          <p><strong>Water Consumption:</strong> ${
-            recommendation.daily_water_requirement
-          } l</p>
-          <p><strong>Food Consumption:</strong> ${
-            recommendation.daily_feed_requirement
-          } kg</p>
-          <p><strong>Annual Fertility Rate Per Female:</strong> ${
-            recommendation.annual_fertility_rate
-          } offspring</p>
-          <h3>Diseases</h3>
-          ${recommendation.diseases.map(
-            ({
-              disease,
-              disease_incidence_likelihood,
-              precaution,
-              treatment,
-            }: any) => {
-              return `
-                <p><strong>Disease Name:</strong> ${disease.name}</p>
-                <p><strong>Disease Incidence Likelihood:</strong> ${
-                  disease_incidence_likelihood.name
-                }</p>
-                <h4>Precautions:</h4>
-                <p>${precaution || "n/a"}</p>
-                <h4>Treatment:</h4>
-                <p>${treatment || "n/a"}</p>`;
-            }
-          )}
-          <h3>Pests</h3>
-          ${recommendation.pests.map(
-            ({
-              pest,
-              pest_incidence_likelihood,
-              precaution,
-              treatment,
-            }: any) => {
-              return `
-                <p><strong>Pest Name:</strong> ${pest.name}</p>
-                <p><strong>Pest Incidence Likelihood:</strong> ${
-                  pest_incidence_likelihood.name
-                }</p>
-                <h4>Precautions:</h4>
-                <p>${precaution || "n/a"}</p>
-                <h4>Treatment:</h4>
-                <p>${treatment || "n/a"}</p>
-             `;
-            }
-          )}
-          <h3>Expected Production</h3>
-          ${recommendation.expected_product_yields.map(
-            ({ product, average_quantity_produced, product_unit }: any) => {
-              return `
-                <p><strong>${
-                  product.name
-                }:</strong> ${average_quantity_produced} ${
-                average_quantity_produced === 1
-                  ? product_unit.name
-                  : product_unit.plural_name
-              }</p>`;
-            }
-          )}
-        `;
-      })}
-    </ol>
-    <br/>
-    <p>We wish all the best</p>
-    <br/>
-    <p>The Pedigree Team</p>
+      ${recommendations
+        .map(
+          ({
+            name,
+            animal,
+            supplier,
+            min_temp,
+            max_temp,
+            daily_water,
+            daily_feed,
+            annual_fertility_rate,
+            diseases,
+            pests,
+            expected_product_yields,
+          }: any) => {
+            return `
+            <h2>${name}</h2>
+            <p><strong>Breed Name:</strong> ${name}</p>
+            <p><strong>Animal:</strong> ${animal.name}</p>
+            <p><strong>Supplier:</strong> ${supplier.name} (${supplier.email}) 
+            </p>
+            <p><strong>Temperature:</strong> ${min_temp} °C - ${max_temp}°C</p>
+            <p><strong>Water Consumption:</strong> ${daily_water} litres</p>
+            <p><strong>Food Consumption:</strong> ${daily_feed} kg</p>
+            <p><strong>Annual Fertility Rate Per Female:</strong> ${annual_fertility_rate} offspring</p>
+            <h3>Diseases</h3>
+            ${diseases
+              .map(
+                ({
+                  disease,
+                  disease_incidence_likelihood,
+                  precautions,
+                  treatment,
+                }: any) => {
+                  return `
+                  <p><strong>Disease Name:</strong> ${disease.name}</p>
+                  <p><strong>Disease Incidence Likelihood:</strong> ${
+                    disease_incidence_likelihood.name
+                  }</p>
+                  <h4>Precautions:</h4>
+                  <p>${precautions || "n/a"}</p>
+                  <h4>Treatment:</h4>
+                  <p>${treatment || "n/a"}</p>`;
+                }
+              )
+              .join("")}
+            <h3>Pests</h3>
+            ${pests
+              .map(
+                ({
+                  pest,
+                  pest_incidence_likelihood,
+                  precautions,
+                  treatment,
+                }: any) => {
+                  return `
+                    <p><strong>Pest Name:</strong> ${pest.name}</p>
+                    <p><strong>Pest Incidence Likelihood:</strong> ${
+                      pest_incidence_likelihood.name
+                    }</p>
+                    <h4>Precautions:</h4>
+                    <p>${precautions || "n/a"}</p>
+                    <h4>Treatment:</h4>
+                    <p>${treatment || "n/a"}</p>
+                  `;
+                }
+              )
+              .join("")}
+            <h3>Expected Production</h3>
+            ${expected_product_yields
+              .map(
+                ({ product, average_quantity_produced, product_unit }: any) => {
+                  return `
+                  <p><strong>${
+                    product.name
+                  }:</strong> ${average_quantity_produced} ${
+                    average_quantity_produced === 1
+                      ? product_unit.name
+                      : product_unit.plural_name
+                  }</p>`;
+                }
+              )
+              .join(",")}
+            `;
+          }
+        )
+        .join("<br/>")}
+      <br/>
+      <p>We wish you all the best</p>
+      <br/>
+      <p>The Pedigree Team</p>
     `;
   }
 
@@ -146,100 +158,121 @@ export class Mailer {
     Based on the parameters you provided on our website. Here's our list of the best ${recommendations[0].crop.name.toLowerCase()} cultivars to invest in.
     </p>
 
-      ${recommendations.map((recommendation: any) => {
-        return `
-          <h2>${recommendation.name}</h2>
-          <p><strong>Variety Name:</strong> ${recommendation.name}</p>
-          <p><strong>Crop Name:</strong> ${recommendation.crop.name}</p>
-          <p><strong>Supplier:</strong> ${recommendation.supplier.name} (${
-          recommendation.supplier.email
-        })</p>
-          <p><strong>Temperature:</strong> ${
-            recommendation.min_temp_requirement
-          } °C - ${recommendation.max_temp_requirement}°C</p>
-          <p><strong>Daily Water Intake:</strong> ${
-            recommendation.min_daily_irrigation
-          } mm - ${recommendation.max_daily_irrigation} mm</p>
-          <p><strong>Annual Cold Hours:</strong> ${
-            recommendation.min_annual_cold_hours
-          } hrs - ${recommendation.max_annual_cold_hours} hrs</p>
-          <p><strong>Soil pH:</strong> ${recommendation.min_soil_pH} - ${
-          recommendation.max_soil_pH
-        }</p>
-          <p><strong>Ideal Soil Type:</strong> ${
-            recommendation.soil_type.name
-          }</p>
+      ${recommendations
+        .map(
+          ({
+            name,
+            crop,
+            supplier,
+            min_temp,
+            max_temp,
+            min_daily_irrigation,
+            max_daily_irrigation,
+            min_annual_cold_hours,
+            max_annual_cold_hours,
+            min_soil_pH,
+            max_soil_pH,
+            soil_type,
+            diseases,
+            pests,
+            fertiliser_applications,
+            expected_product_yields,
+          }: any) => {
+            return `
+          <h2>${name}</h2>
+          <p><strong>Variety Name:</strong> ${name}</p>
+          <p><strong>Crop Name:</strong> ${crop.name}</p>
+          <p><strong>Supplier:</strong> ${supplier.name} (${supplier.email})</p>
+          <p><strong>Temperature:</strong> ${min_temp} °C - ${max_temp}°C</p>
+          <p><strong>Daily Water Intake:</strong> ${min_daily_irrigation} mm - ${max_daily_irrigation} mm</p>
+          <p><strong>Annual Cold Hours:</strong> ${min_annual_cold_hours} hrs - ${max_annual_cold_hours} hrs</p>
+          <p><strong>Soil pH:</strong> ${min_soil_pH} - ${max_soil_pH}</p>
+          <p><strong>Ideal Soil Type:</strong> ${soil_type.name}</p>
+          <br/>
           <h3>Diseases</h3>
-          ${recommendation.diseases.map(
-            ({
-              disease,
-              disease_incidence_likelihood,
-              precaution,
-              treatment,
-            }: any) => {
-              return `
+          ${diseases
+            .map(
+              ({
+                disease,
+                disease_incidence_likelihood,
+                precautions,
+                treatment,
+              }: any) => {
+                return `
                 <p><strong>Disease Name:</strong> ${disease.name}</p>
                 <p><strong>Disease Incidence Likelihood:</strong> ${
                   disease_incidence_likelihood.name
                 }</p>
                 <h4>Precautions:</h4>
-                <p>${precaution || "n/a"}</p>
+                <p>${precautions || "n/a"}</p>
                 <h4>Treatment:</h4>
                 <p>${treatment || "n/a"}</p>`;
-            }
-          )}
+              }
+            )
+            .join("")}
+            <br/>
           <h3>Pests</h3>
-          ${recommendation.pests.map(
-            ({
-              pest,
-              pest_incidence_likelihood,
-              precaution,
-              treatment,
-            }: any) => {
-              return `
+          ${pests
+            .map(
+              ({
+                pest,
+                pest_incidence_likelihood,
+                precautions,
+                treatment,
+              }: any) => {
+                return `
                 <p><strong>Pest Name:</strong> ${pest.name}</p>
                 <p><strong>Pest Incidence Likelihood:</strong> ${
                   pest_incidence_likelihood.name
                 }</p>
                 <h4>Precautions:</h4>
-                <p>${precaution || "n/a"}</p>
+                <p>${precautions || "n/a"}</p>
                 <h4>Treatment:</h4>
                 <p>${treatment || "n/a"}</p>
              `;
-            }
-          )}
+              }
+            )
+            .join("")}
+            <br/>
           <h3>Fertiliser Applications</h3>
-          ${recommendation.fertiliser_applications.map(
-            ({
-              fertiliser,
-              milestone_for_application,
-              quantity_per_plant,
-            }: any) => {
-              return `
+          ${fertiliser_applications
+            .map(
+              ({
+                fertiliser,
+                milestone_for_application,
+                quantity_per_plant,
+              }: any) => {
+                return `
                 <p><strong>Fertiliser Name:</strong> ${fertiliser.name}</p>
                 <p><strong>Milestone for Application:</strong> ${milestone_for_application}</p>
-                <p><strong>Quantity per Plant:</strong> ${quantity_per_plant} g</p>
+                <p><strong>Quantity per Plant (g):</strong> ${quantity_per_plant} g</p>
               `;
-            }
-          )}
+              }
+            )
+            .join()}
+            <br/>
           <h3>Expected Yields</h3>
-          ${recommendation.expected_product_yields.map(
-            ({ product, average_quantity_produced, product_unit }: any) => {
-              return `
+          ${expected_product_yields
+            .map(
+              ({ product, average_quantity_produced, product_unit }: any) => {
+                return `
                 <p><strong>${
                   product.name
                 }:</strong> ${average_quantity_produced} ${
-                average_quantity_produced === 1
-                  ? product_unit.name
-                  : product_unit.plural_name
-              }</p>`;
-            }
-          )}
+                  average_quantity_produced === 1
+                    ? product_unit.name
+                    : product_unit.plural_name
+                }</p>`;
+              }
+            )
+            .join()}
         `;
-      })}
+          }
+        )
+        .join("<br/>")}
     </ol>
     <br/>
-    <p>We wish all the best</p>
+    <p>We wish you all the best</p>
     <br/>
     <p>The Pedigree Team</p>
     `;

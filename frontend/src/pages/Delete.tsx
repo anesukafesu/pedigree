@@ -34,10 +34,7 @@ export function Delete() {
           Confirm Delete
         </Text>
         <br />
-        <Text as="p">
-          Are you sure you want to delete{" "}
-          {item[type === "breeds" ? "breed_name" : "name"]}?
-        </Text>
+        <Text as="p">Are you sure you want to delete {item.name}?</Text>
         <br />
         <Button variant="primary" onClick={onConfirmDelete}>
           Delete

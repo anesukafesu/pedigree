@@ -1,4 +1,5 @@
 import { Page, Card, Text } from "@shopify/polaris";
+import { ExitIcon } from "@shopify/polaris-icons";
 import { useEffect, useState } from "react";
 import { useStore } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,11 @@ export function Suppliers() {
     }
   };
 
+  const logout = () => {
+    window.localStorage.removeItem("token");
+    navigate("/suppliers/login");
+  };
+
   useEffect(onMount, []);
 
   if (!token) return <Text as="p">Redirecting you to login...</Text>;
@@ -42,6 +48,9 @@ export function Suppliers() {
     return (
       <Page
         title="Dashboard"
+        secondaryActions={[
+          { content: "Logout", onAction: logout, icon: ExitIcon },
+        ]}
         actionGroups={[
           {
             title: "Create new",

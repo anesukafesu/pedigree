@@ -3,7 +3,7 @@ export function createInitialState(type: "breed" | "cultivar") {
 
   if (type === "breed") {
     return {
-      breed_name: "",
+      name: "",
       animal_id: "1aa3ddfc-da12-4b5a-bd79-b868be3a9f82",
       daily_feed: 0,
       daily_water: 0,

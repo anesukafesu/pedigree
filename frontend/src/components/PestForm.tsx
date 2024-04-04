@@ -50,9 +50,9 @@ export function PestForm({
       <Grid.Cell columnSpan={{ xs: 2 }}>
         <TextField
           onChange={(value) => {
-            updateItem("pests", index, "precaution", value);
+            updateItem("pests", index, "precautions", value);
           }}
-          value={pest.precaution}
+          value={pest.precautions}
           label="Precautions"
           autoComplete="None"
           multiline

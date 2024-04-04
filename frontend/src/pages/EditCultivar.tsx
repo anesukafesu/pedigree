@@ -106,7 +106,7 @@ export function EditCultivar() {
             }}
           ></TextField>
           <TextField
-            label="Min Daily Irrigation"
+            label="Min Daily Irrigation (ml)"
             autoComplete="none"
             type="number"
             value={cultivar.min_daily_irrigation}
@@ -115,7 +115,7 @@ export function EditCultivar() {
             }}
           ></TextField>
           <TextField
-            label="Max Daily Irrigation"
+            label="Max Daily Irrigation (ml)"
             autoComplete="none"
             type="number"
             value={cultivar.max_daily_irrigation}

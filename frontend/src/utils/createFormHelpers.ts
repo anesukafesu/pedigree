@@ -75,7 +75,7 @@ export function createFormHelpers(data: any, setData: any) {
       pest_id: "52a4d0a9-9ef0-4121-9161-f82dafb1d1bd",
       pest_incidence_likelihood_id: "e139caf8-e8dc-4395-a40f-f19d9df65a5d",
       treatment: "",
-      precaution: "",
+      precautions: "",
     },
     expected_product_yields: {
       product_id: "f057d88b-11ad-44be-b300-5c41d46cb1df",
@@ -86,7 +86,7 @@ export function createFormHelpers(data: any, setData: any) {
       disease_id: "1d7f6b47-500a-455c-80c6-203ae7eb778a",
       disease_incidence_likelihood_id: "e139caf8-e8dc-4395-a40f-f19d9df65a5d",
       treatment: "",
-      precaution: "",
+      precautions: "",
     },
     fertiliser_applications: {
       fertiliser_id: "b459d4d8-2ff7-4c91-a04e-583f42044a85",

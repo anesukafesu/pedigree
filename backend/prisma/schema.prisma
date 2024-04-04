@@ -187,7 +187,7 @@ model Breed {
   animal                     Animal                @relation(fields: [animal_id], references: [id], onUpdate: Cascade)
   supplier_id                String
   supplier                   Supplier              @relation(fields: [supplier_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  breed_name                 String
+  name                       String
   daily_feed                 Float
   daily_water                Float
   min_temp                   Float
@@ -221,15 +221,15 @@ model BreedRecommendation {
 }
 
 model BreedDisease {
-  id                               String     @id @default(uuid())
-  breed_id                         String
-  breed                            Breed      @relation(fields: [breed_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  disease_id                       String
-  disease                          Disease    @relation(fields: [disease_id], references: [id], onUpdate: Cascade)
-  diseases_incidence_likelihood_id String
-  disease_incidence_likelihood     Likelihood @relation(fields: [diseases_incidence_likelihood_id], references: [id], onUpdate: Cascade)
-  treatment                        String
-  precautions                      String
+  id                              String     @id @default(uuid())
+  breed_id                        String
+  breed                           Breed      @relation(fields: [breed_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  disease_id                      String
+  disease                         Disease    @relation(fields: [disease_id], references: [id], onUpdate: Cascade)
+  disease_incidence_likelihood_id String
+  disease_incidence_likelihood    Likelihood @relation(fields: [disease_incidence_likelihood_id], references: [id], onUpdate: Cascade)
+  treatment                       String
+  precautions                     String
 }
 
 model BreedPest {

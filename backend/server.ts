@@ -153,7 +153,7 @@ export function createServer(
       await mailer.sendRecommendation("animal", email, name, breeds);
     }
 
-    res.json(breeds);
+    res.status(200).json(breeds);
   });
 
   app.post("/api/create-supplier", async (req, res) => {
@@ -315,7 +315,7 @@ export function createServer(
     const supplierId = res.locals.supplierId;
 
     const {
-      breed_name,
+      name,
       animal_id,
       daily_feed,
       daily_water,
@@ -329,7 +329,7 @@ export function createServer(
 
     const breed = await prisma.breed.create({
       data: {
-        breed_name,
+        name,
         daily_feed,
         daily_water,
         min_temp,
@@ -341,7 +341,7 @@ export function createServer(
           create: diseases.map((disease: any) => {
             return {
               treatment: disease.treatment,
-              precaution: disease.precaution,
+              precautions: disease.precautions,
               disease_incidence_likelihood: {
                 connect: {
                   id: disease.disease_incidence_likelihood_id,
@@ -358,7 +358,7 @@ export function createServer(
         pests: {
           create: pests.map((pest: any) => ({
             treatment: pest.treatment,
-            precaution: pest.precaution,
+            precautions: pest.precautions,
             pest_incidence_likelihood: {
               connect: {
                 id: pest.pest_incidence_likelihood_id,
@@ -435,7 +435,7 @@ export function createServer(
           create: diseases.map((disease: any) => {
             return {
               treatment: disease.treatment,
-              precaution: disease.precaution,
+              precautions: disease.precautions,
               disease_incidence_likelihood: {
                 connect: {
                   id: disease.disease_incidence_likelihood_id,
@@ -454,7 +454,7 @@ export function createServer(
           create: pests.map((pest: any) => {
             return {
               treatment: pest.treatment,
-              precaution: pest.precaution,
+              precautions: pest.precautions,
               pest_incidence_likelihood: {
                 connect: {
                   id: pest.pest_incidence_likelihood_id,
@@ -530,8 +530,6 @@ export function createServer(
       fertiliser_applications,
     } = req.body;
 
-    console.log(diseases);
-
     if (!id) {
       return res.status(400).json({ message: "Required id field is missing." });
     }
@@ -592,7 +590,7 @@ export function createServer(
           createMany: {
             data: diseases.map((disease: any) => ({
               treatment: disease.treatment,
-              precautions: disease.precaution,
+              precautions: disease.precautions,
               disease_incidence_likelihood_id:
                 disease.disease_incidence_likelihood_id,
               disease_id: disease.disease_id,
@@ -608,7 +606,7 @@ export function createServer(
           createMany: {
             data: pests.map((pest: any) => ({
               treatment: pest.treatment,
-              precautions: pest.precaution,
+              precautions: pest.precautions,
               pest_incidence_likelihood_id: pest.pest_incidence_likelihood_id,
               pest_id: pest.pest_id,
             })),
@@ -617,6 +615,107 @@ export function createServer(
         expected_product_yields: {
           deleteMany: {
             cultivar_id: {
+              equals: id,
+            },
+          },
+          createMany: {
+            data: expected_product_yields.map((expectedProductYield: any) => ({
+              average_quantity_produced:
+                expectedProductYield.average_quantity_produced,
+              product_id: expectedProductYield.product_id,
+              product_unit_id: expectedProductYield.product_unit_id,
+            })),
+          },
+        },
+      },
+    });
+
+    res.status(200).json({ message: "All went well" });
+  });
+
+  app.put("/api/breeds", verifyAuth, async (req, res) => {
+    const supplierId = res.locals.supplierId;
+
+    const {
+      id,
+      name,
+      animal_id,
+      daily_feed,
+      daily_water,
+      min_temp,
+      max_temp,
+      annual_fertility_rate,
+      expected_product_yields,
+      diseases,
+      pests,
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "Required id field is missing." });
+    }
+
+    const breed = await prisma.breed.findFirst({
+      where: { id: { equals: id } },
+    });
+
+    if (!breed) {
+      return res
+        .status(404)
+        .json({ message: "Resource to update could not be found." });
+    }
+
+    if (breed.supplier_id != supplierId) {
+      return res.status(403).json({
+        message: "You do not have the authorisation to modify this record",
+      });
+    }
+
+    await prisma.breed.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+        min_temp,
+        max_temp,
+        animal_id,
+        daily_feed,
+        daily_water,
+        annual_fertility_rate,
+        diseases: {
+          deleteMany: {
+            breed_id: {
+              equals: id,
+            },
+          },
+          createMany: {
+            data: diseases.map((disease: any) => ({
+              treatment: disease.treatment,
+              precautions: disease.precautions,
+              disease_incidence_likelihood_id:
+                disease.disease_incidence_likelihood_id,
+              disease_id: disease.disease_id,
+            })),
+          },
+        },
+        pests: {
+          deleteMany: {
+            breed_id: {
+              equals: id,
+            },
+          },
+          createMany: {
+            data: pests.map((pest: any) => ({
+              treatment: pest.treatment,
+              precautions: pest.precautions,
+              pest_incidence_likelihood_id: pest.pest_incidence_likelihood_id,
+              pest_id: pest.pest_id,
+            })),
+          },
+        },
+        expected_product_yields: {
+          deleteMany: {
+            breed_id: {
               equals: id,
             },
           },

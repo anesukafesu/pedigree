@@ -40,11 +40,14 @@ export function EditBreed() {
 
   const handleSubmit = () => {
     authenticatedFetch("/api/breeds", {
-      method: "POST",
+      method: params.id === "new" ? "POST" : "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(breed),
+      body: JSON.stringify({
+        ...breed,
+        id: params.id === "new" ? undefined : params.id,
+      }),
     })
       .then((response) => {
         console.log("Success:", response);
@@ -64,8 +67,8 @@ export function EditBreed() {
       <Form onSubmit={handleSubmit}>
         <FormLayout>
           <TextField
-            value={breed.breed_name}
-            onChange={(value) => updateProperty("breed_name", value)}
+            value={breed.name}
+            onChange={(value) => updateProperty("name", value)}
             label="Breed Name"
             type="text"
             autoComplete="none"
