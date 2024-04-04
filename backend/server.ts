@@ -205,6 +205,90 @@ export function createServer(
     });
   });
 
+  app.post("/api/forgot-password", async (req, res) => {
+    const { email, frontendUrl } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email field is missing" });
+    }
+
+    const supplier = prisma.supplier.findFirst({
+      where: { email: { equals: email } },
+    });
+
+    if (!supplier) {
+      return res
+        .status(404)
+        .json({ message: "Supplier with specified email could not be found" });
+    }
+
+    const token = uuid();
+    const expiration_date = new Date(Date.now() + 1000 * 60 * 30);
+
+    await prisma.supplier.update({
+      where: {
+        email,
+      },
+      data: {
+        password_reset_token: String(token),
+        password_reset_token_expiration: expiration_date,
+      },
+    });
+
+    const resetLink = `${frontendUrl}?token=${token}`;
+
+    await mailer.sendPasswordResetLink(email, resetLink);
+
+    res.status(200).json({ message: "Reset link sent" });
+  });
+
+  app.post("/api/reset-password", async (req, res) => {
+    const token = req.body.token as string;
+    const password = req.body.password as string;
+
+    /*  Make sure token is never empty otherwise you will reset the password for all
+        users do not have a password_reset_token because they didn't request a password reset
+    */
+    if (token === "") {
+      return res.status(400).json({ message: "Token cannot be empty" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const supplier = await prisma.supplier.findFirst({
+      where: {
+        password_reset_token: {
+          equals: token,
+        },
+      },
+    });
+
+    if (!supplier) {
+      return res
+        .status(404)
+        .json({ message: "Could not find supplier with specified token" });
+    }
+
+    if (
+      Date.now() > Number(supplier.password_reset_token_expiration?.getTime())
+    ) {
+      return res.status(401).json({ message: "Token expired" });
+    }
+
+    await prisma.supplier.update({
+      where: {
+        email: supplier.email,
+      },
+      data: {
+        password: hashedPassword,
+        password_reset_token: null,
+        password_reset_token_expiration: null,
+      },
+    });
+
+    res.status(200).json({ message: "Password reset succesful" });
+  });
+
   app.get("/api/form-options", async (req, res) => {
     // List of tables that provide form options
     const tables = [

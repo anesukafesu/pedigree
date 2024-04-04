@@ -79,7 +79,13 @@ export function Login() {
               <Button submit variant="primary">
                 Login
               </Button>
-              <Button>Forgot Password</Button>
+              <Button
+                onClick={() => {
+                  navigate("/suppliers/forgot");
+                }}
+              >
+                Forgot Password
+              </Button>
             </ButtonGroup>
           </FormLayout>
         </Form>

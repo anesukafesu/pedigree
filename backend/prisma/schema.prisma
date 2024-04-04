@@ -86,7 +86,7 @@ model ConventionalUnit {
 model Farmer {
   id                       String                   @id @default(uuid())
   name                     String
-  email                    String
+  email                    String                   @unique
   cultivar_recommendations CultivarRecommendation[]
   breed_recommendations    BreedRecommendation[]
 }
@@ -94,7 +94,7 @@ model Farmer {
 model Supplier {
   id                              String     @id @default(uuid())
   name                            String
-  email                           String
+  email                           String     @unique
   password                        String
   password_reset_token            String?
   password_reset_token_expiration DateTime?

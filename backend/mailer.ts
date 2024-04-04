@@ -277,4 +277,25 @@ export class Mailer {
     <p>The Pedigree Team</p>
     `;
   }
+
+  async sendPasswordResetLink(supplierEmail: string, resetLink: string) {
+    const info = await this.transporter.sendMail({
+      from: '"Pedigree" <pedigree@halogenapps.com>',
+      to: supplierEmail,
+      subject: "Password Reset",
+      html: `
+        Click the link below to reset your password<br/>
+        <a href="${resetLink}">Reset Password</a>
+
+        <br/>
+        <p>If clicking does not work, copy and paste the link below into your browser</p>
+        <p>${resetLink}</p>
+
+        <p>Link will expire in 30 minutes.</p>
+        <p>If you did not request a password reset, please ignore this email</p>
+      `,
+    });
+
+    return info;
+  }
 }
