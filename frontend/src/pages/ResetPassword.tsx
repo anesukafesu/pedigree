@@ -11,7 +11,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 
 export function ResetPassword() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, _setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const [password, setPassword] = useState("");
