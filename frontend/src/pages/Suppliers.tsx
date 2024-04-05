@@ -1,9 +1,10 @@
-import { Page, Card, Text } from "@shopify/polaris";
+import { Page, Card, Text, Layout } from "@shopify/polaris";
 import { ExitIcon } from "@shopify/polaris-icons";
 import { useEffect, useState } from "react";
 import { useStore } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { BreedsList, CultivarsList } from "../components";
+import toast from "react-hot-toast";
 
 export function Suppliers() {
   const store = useStore();
@@ -38,6 +39,7 @@ export function Suppliers() {
 
   const logout = () => {
     window.localStorage.removeItem("token");
+    toast.success("Logged out successfully.");
     navigate("/suppliers/login");
   };
 
@@ -67,11 +69,15 @@ export function Suppliers() {
           },
         ]}
       >
-        <Card>
-          <BreedsList />
-          <br />
-          <CultivarsList />
-        </Card>
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <BreedsList />
+              <br />
+              <CultivarsList />
+            </Card>
+          </Layout.Section>
+        </Layout>
       </Page>
     );
 }

@@ -1,4 +1,4 @@
-import { Grid, Select, TextField, Button } from "@shopify/polaris";
+import { Grid, Select, TextField, Button, InlineStack } from "@shopify/polaris";
 import { createOptions } from "../utils";
 
 export function DiseaseForm({

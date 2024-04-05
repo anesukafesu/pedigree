@@ -6,9 +6,11 @@ import {
   Form,
   FormLayout,
   Button,
+  Layout,
 } from "@shopify/polaris";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export function ResetPassword() {
   const [searchParams, _setSearchParams] = useSearchParams();
@@ -20,6 +22,7 @@ export function ResetPassword() {
   const token = searchParams.get("token");
 
   const handleSubmit = () => {
+    const loadingToastId = toast.loading("Resetting password...");
     if (password === confirmPassword) {
       fetch("/api/reset-password", {
         method: "POST",
@@ -28,50 +31,55 @@ export function ResetPassword() {
         },
         body: JSON.stringify({ password, token }),
       }).then((response) => {
+        toast.dismiss(loadingToastId);
         if (response.ok) {
-          alert("Password reset successfully.");
+          toast.success("Password reset successfully. Please login.");
           navigate("/suppliers/login");
         } else {
-          alert("An error occurred. Please try again.");
+          toast.error("An error occurred. Please try again.");
         }
       });
     } else {
-      alert("Your passwords do not match.");
+      toast.error("Your passwords do not match.");
     }
   };
 
   return (
-    <Page>
-      <Card>
-        <Form onSubmit={handleSubmit}>
-          <FormLayout>
-            <Text as="h1" variant="headingSm">
-              Reset Password
-            </Text>
-            <TextField
-              label="New Password"
-              type="password"
-              onChange={(value) => {
-                setPassword(value);
-              }}
-              value={password}
-              autoComplete="password"
-            ></TextField>
-            <TextField
-              type="password"
-              label="Confirm Password"
-              onChange={(value) => {
-                setConfirmPassword(value);
-              }}
-              value={confirmPassword}
-              autoComplete="password"
-            ></TextField>
-            <Button variant="primary" submit>
-              Reset Password
-            </Button>
-          </FormLayout>
-        </Form>
-      </Card>
+    <Page narrowWidth>
+      <Layout sectioned>
+        <Layout.Section>
+          <Card>
+            <Form onSubmit={handleSubmit}>
+              <FormLayout>
+                <Text as="h1" variant="headingSm">
+                  Reset Password
+                </Text>
+                <TextField
+                  label="New Password"
+                  type="password"
+                  onChange={(value) => {
+                    setPassword(value);
+                  }}
+                  value={password}
+                  autoComplete="password"
+                ></TextField>
+                <TextField
+                  type="password"
+                  label="Confirm Password"
+                  onChange={(value) => {
+                    setConfirmPassword(value);
+                  }}
+                  value={confirmPassword}
+                  autoComplete="password"
+                ></TextField>
+                <Button variant="primary" submit>
+                  Reset Password
+                </Button>
+              </FormLayout>
+            </Form>
+          </Card>
+        </Layout.Section>
+      </Layout>
     </Page>
   );
 }

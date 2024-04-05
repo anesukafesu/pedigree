@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   Page,
   Form,
@@ -9,6 +10,7 @@ import {
   Card,
   Text,
   ButtonGroup,
+  Layout,
 } from "@shopify/polaris";
 
 export function Login() {
@@ -23,6 +25,7 @@ export function Login() {
   );
   const handleSubmit = async () => {
     // Submit email and password to backend
+    const loadingToastId = toast.loading("Logging in...");
     const response = await fetch("/api/login", {
       method: "POST",
       headers: {
@@ -31,7 +34,9 @@ export function Login() {
       body: JSON.stringify({ email, password }),
     });
 
+    toast.dismiss(loadingToastId);
     if (response.ok) {
+      toast.success("Logged in successfully");
       const { token } = await response.json();
       const SESSION_DURATION = 3 * 60 * 60 * 1000 - 30_000;
 
@@ -48,48 +53,52 @@ export function Login() {
       navigate("/suppliers/");
     } else {
       // Show error message
-      alert("Invalid email or password");
+      toast("Invalid email or password");
     }
   };
 
   return (
     <Page narrowWidth>
-      <Card>
-        <Text as="h1" variant="headingLg">
-          Login
-        </Text>
-        <br />
-        <Form onSubmit={handleSubmit}>
-          <FormLayout>
-            <TextField
-              value={email}
-              label="Email"
-              type="email"
-              autoComplete="email"
-              onChange={handleEmailChange}
-            />
-            <TextField
-              value={password}
-              label="Password"
-              type="password"
-              autoComplete="password"
-              onChange={handlePasswordChange}
-            />
-            <ButtonGroup>
-              <Button submit variant="primary">
-                Login
-              </Button>
-              <Button
-                onClick={() => {
-                  navigate("/suppliers/forgot");
-                }}
-              >
-                Forgot Password
-              </Button>
-            </ButtonGroup>
-          </FormLayout>
-        </Form>
-      </Card>
+      <Layout sectioned>
+        <Layout.Section>
+          <Card>
+            <Text as="h1" variant="headingLg">
+              Login
+            </Text>
+            <br />
+            <Form onSubmit={handleSubmit}>
+              <FormLayout>
+                <TextField
+                  value={email}
+                  label="Email"
+                  type="email"
+                  autoComplete="email"
+                  onChange={handleEmailChange}
+                />
+                <TextField
+                  value={password}
+                  label="Password"
+                  type="password"
+                  autoComplete="password"
+                  onChange={handlePasswordChange}
+                />
+                <ButtonGroup>
+                  <Button submit variant="primary">
+                    Login
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      navigate("/suppliers/forgot");
+                    }}
+                  >
+                    Forgot Password
+                  </Button>
+                </ButtonGroup>
+              </FormLayout>
+            </Form>
+          </Card>
+        </Layout.Section>
+      </Layout>
     </Page>
   );
 }

@@ -11,6 +11,7 @@ import {
   Select,
   Button,
   Text,
+  Layout,
 } from "@shopify/polaris";
 import {
   DiseaseForm,
@@ -19,6 +20,7 @@ import {
   FertiliserApplicationForm,
 } from "../components";
 import { authenticatedFetch } from "../apiHelpers";
+import toast from "react-hot-toast";
 
 export function EditCultivar() {
   const navigate = useNavigate();
@@ -43,6 +45,7 @@ export function EditCultivar() {
     setCultivar
   );
   const handleSubmit = () => {
+    const toastId = toast.loading("Saving cultivar...");
     authenticatedFetch("/api/cultivars", {
       method: params.id === "new" ? "POST" : "PUT",
       headers: {
@@ -54,12 +57,16 @@ export function EditCultivar() {
       }),
     })
       .then((response) => {
-        console.log("Success:", response);
-        store.dispatch({ type: "ADD_CULTIVAR", payload: cultivar });
+        toast.dismiss(toastId);
+        if (response.ok) {
+          toast.success("Cultivar saved successfully.");
+        } else {
+          toast.error("An error occurred. Please try again.");
+        }
         navigate("/suppliers/");
       })
       .catch((error) => {
-        console.error("Error:", error);
+        toast.error("Check your network and try again.");
         alert("Error creating cultivar");
       });
   };
@@ -73,197 +80,205 @@ export function EditCultivar() {
       title="Cultivar Information"
       backAction={{ content: "Back", onAction: () => navigate("/suppliers") }}
     >
-      <Form onSubmit={handleSubmit}>
-        <FormLayout>
-          <TextField
-            value={cultivar.name}
-            onChange={(value) => updateProperty("name", value)}
-            label="Cultivar Name"
-            autoComplete="none"
-          ></TextField>
-          <Select
-            value={cultivar.crop_id}
-            onChange={(value) => updateProperty("crop_id", value)}
-            label="Crop"
-            options={createOptions(formOptions.crop)}
-          ></Select>
-          <TextField
-            label="Minimum Temperature Requirement (°C)"
-            autoComplete="none"
-            type="number"
-            value={cultivar.min_temp}
-            onChange={(value) => {
-              updateProperty("min_temp", Number(value));
-            }}
-          ></TextField>
-          <TextField
-            label="Max Temperature Requirement (°C)"
-            autoComplete="none"
-            type="number"
-            value={cultivar.max_temp}
-            onChange={(value) => {
-              updateProperty("max_temp", Number(value));
-            }}
-          ></TextField>
-          <TextField
-            label="Min Daily Irrigation (ml)"
-            autoComplete="none"
-            type="number"
-            value={cultivar.min_daily_irrigation}
-            onChange={(value) => {
-              updateProperty("min_daily_irrigation", Number(value));
-            }}
-          ></TextField>
-          <TextField
-            label="Max Daily Irrigation (ml)"
-            autoComplete="none"
-            type="number"
-            value={cultivar.max_daily_irrigation}
-            onChange={(value) => {
-              updateProperty("max_daily_irrigation", Number(value));
-            }}
-          ></TextField>
-          <TextField
-            label="Min Annual Cold Hours"
-            autoComplete="none"
-            type="number"
-            value={cultivar.min_annual_cold_hours}
-            onChange={(value) => {
-              updateProperty("min_annual_cold_hours", Number(value));
-            }}
-          ></TextField>
-          <TextField
-            label="Max Annual Cold Hours"
-            autoComplete="none"
-            type="number"
-            value={cultivar.max_annual_cold_hours}
-            onChange={(value) => {
-              updateProperty("max_annual_cold_hours", Number(value));
-            }}
-          ></TextField>
-          <TextField
-            value={cultivar.min_soil_pH}
-            onChange={(value) => updateProperty("min_soil_pH", Number(value))}
-            label="Min Soil pH"
-            autoComplete="none"
-            type="number"
-          ></TextField>
-          <TextField
-            value={cultivar.max_soil_pH}
-            onChange={(value) => updateProperty("max_soil_pH", Number(value))}
-            label="Max Soil pH"
-            autoComplete="none"
-            type="number"
-          ></TextField>
-          <Select
-            label="Soil Type"
-            options={createOptions(formOptions.soilType)}
-            value={cultivar.soil_type_id}
-            onChange={(value) => updateProperty("soil_type_id", value)}
-          ></Select>
-          <Text as="p" variant="headingSm">
-            Expected Product Yields
-          </Text>
-          {cultivar.expected_product_yields.map(
-            (product_yield: any, index: number) => {
-              return (
-                <ExpectedProductYieldForm
-                  product_yield={product_yield}
-                  key={index}
-                  index={index}
-                  updateItem={updateItem}
-                  deleteItem={deleteItem}
-                  formOptions={formOptions}
-                />
-              );
-            }
-          )}
-          <Button
-            variant="secondary"
-            onClick={() => addItem("expected_product_yields")}
-          >
-            Add product
-          </Button>
-          <Text as="p" variant="headingSm">
-            Diseases
-          </Text>
-          {cultivar.diseases.map((disease: any, index: number) => {
-            return (
-              <DiseaseForm
-                disease={disease}
-                key={index}
-                index={index}
-                updateItem={updateItem}
-                deleteItem={deleteItem}
-                formOptions={formOptions}
-              />
-            );
-          })}
-          <Button
-            onClick={() => {
-              addItem("diseases");
-            }}
-          >
-            Add Disease
-          </Button>
-          <Text as="p" variant="headingSm">
-            Pests
-          </Text>
-          {cultivar.pests.map((pest: any, index: number) => {
-            return (
-              <PestForm
-                pest={pest}
-                key={index}
-                index={index}
-                updateItem={updateItem}
-                deleteItem={deleteItem}
-                formOptions={formOptions}
-              />
-            );
-          })}
-          <Button
-            onClick={() => {
-              addItem("pests");
-            }}
-          >
-            Add Pest
-          </Button>
-          <Text as="p" variant="headingSm">
-            Fertiliser Applications
-          </Text>
-          {cultivar.fertiliser_applications.map(
-            (fertiliser: any, index: number) => {
-              return (
-                <FertiliserApplicationForm
-                  fertiliserApplication={fertiliser}
-                  key={index}
-                  index={index}
-                  updateItem={updateItem}
-                  deleteItem={deleteItem}
-                  formOptions={formOptions}
-                />
-              );
-            }
-          )}
-          <Button
-            onClick={() => {
-              addItem("fertiliser_applications");
-            }}
-          >
-            Add Fertiliser Application
-          </Button>
-        </FormLayout>
-        <br />
-        <Button variant="primary" submit>
-          Save
-        </Button>{" "}
-        {params.id != "new" && (
-          <Button variant="secondary" onClick={handleDelete}>
-            Delete
-          </Button>
-        )}
-      </Form>
-      <br />
+      <Layout>
+        <Layout.Section>
+          <Form onSubmit={handleSubmit}>
+            <FormLayout>
+              <TextField
+                value={cultivar.name}
+                onChange={(value) => updateProperty("name", value)}
+                label="Cultivar Name"
+                autoComplete="none"
+              ></TextField>
+              <Select
+                value={cultivar.crop_id}
+                onChange={(value) => updateProperty("crop_id", value)}
+                label="Crop"
+                options={createOptions(formOptions.crop)}
+              ></Select>
+              <TextField
+                label="Minimum Temperature Requirement (°C)"
+                autoComplete="none"
+                type="number"
+                value={cultivar.min_temp}
+                onChange={(value) => {
+                  updateProperty("min_temp", Number(value));
+                }}
+              ></TextField>
+              <TextField
+                label="Max Temperature Requirement (°C)"
+                autoComplete="none"
+                type="number"
+                value={cultivar.max_temp}
+                onChange={(value) => {
+                  updateProperty("max_temp", Number(value));
+                }}
+              ></TextField>
+              <TextField
+                label="Min Daily Irrigation (ml)"
+                autoComplete="none"
+                type="number"
+                value={cultivar.min_daily_irrigation}
+                onChange={(value) => {
+                  updateProperty("min_daily_irrigation", Number(value));
+                }}
+              ></TextField>
+              <TextField
+                label="Max Daily Irrigation (ml)"
+                autoComplete="none"
+                type="number"
+                value={cultivar.max_daily_irrigation}
+                onChange={(value) => {
+                  updateProperty("max_daily_irrigation", Number(value));
+                }}
+              ></TextField>
+              <TextField
+                label="Min Annual Cold Hours"
+                autoComplete="none"
+                type="number"
+                value={cultivar.min_annual_cold_hours}
+                onChange={(value) => {
+                  updateProperty("min_annual_cold_hours", Number(value));
+                }}
+              ></TextField>
+              <TextField
+                label="Max Annual Cold Hours"
+                autoComplete="none"
+                type="number"
+                value={cultivar.max_annual_cold_hours}
+                onChange={(value) => {
+                  updateProperty("max_annual_cold_hours", Number(value));
+                }}
+              ></TextField>
+              <TextField
+                value={cultivar.min_soil_pH}
+                onChange={(value) =>
+                  updateProperty("min_soil_pH", Number(value))
+                }
+                label="Min Soil pH"
+                autoComplete="none"
+                type="number"
+              ></TextField>
+              <TextField
+                value={cultivar.max_soil_pH}
+                onChange={(value) =>
+                  updateProperty("max_soil_pH", Number(value))
+                }
+                label="Max Soil pH"
+                autoComplete="none"
+                type="number"
+              ></TextField>
+              <Select
+                label="Soil Type"
+                options={createOptions(formOptions.soilType)}
+                value={cultivar.soil_type_id}
+                onChange={(value) => updateProperty("soil_type_id", value)}
+              ></Select>
+              <Text as="p" variant="headingSm">
+                Expected Product Yields
+              </Text>
+              {cultivar.expected_product_yields.map(
+                (product_yield: any, index: number) => {
+                  return (
+                    <ExpectedProductYieldForm
+                      product_yield={product_yield}
+                      key={index}
+                      index={index}
+                      updateItem={updateItem}
+                      deleteItem={deleteItem}
+                      formOptions={formOptions}
+                    />
+                  );
+                }
+              )}
+              <Button
+                variant="secondary"
+                onClick={() => addItem("expected_product_yields")}
+              >
+                Add product
+              </Button>
+              <Text as="p" variant="headingSm">
+                Diseases
+              </Text>
+              {cultivar.diseases.map((disease: any, index: number) => {
+                return (
+                  <DiseaseForm
+                    disease={disease}
+                    key={index}
+                    index={index}
+                    updateItem={updateItem}
+                    deleteItem={deleteItem}
+                    formOptions={formOptions}
+                  />
+                );
+              })}
+              <Button
+                onClick={() => {
+                  addItem("diseases");
+                }}
+              >
+                Add Disease
+              </Button>
+              <Text as="p" variant="headingSm">
+                Pests
+              </Text>
+              {cultivar.pests.map((pest: any, index: number) => {
+                return (
+                  <PestForm
+                    pest={pest}
+                    key={index}
+                    index={index}
+                    updateItem={updateItem}
+                    deleteItem={deleteItem}
+                    formOptions={formOptions}
+                  />
+                );
+              })}
+              <Button
+                onClick={() => {
+                  addItem("pests");
+                }}
+              >
+                Add Pest
+              </Button>
+              <Text as="p" variant="headingSm">
+                Fertiliser Applications
+              </Text>
+              {cultivar.fertiliser_applications.map(
+                (fertiliser: any, index: number) => {
+                  return (
+                    <FertiliserApplicationForm
+                      fertiliserApplication={fertiliser}
+                      key={index}
+                      index={index}
+                      updateItem={updateItem}
+                      deleteItem={deleteItem}
+                      formOptions={formOptions}
+                    />
+                  );
+                }
+              )}
+              <Button
+                onClick={() => {
+                  addItem("fertiliser_applications");
+                }}
+              >
+                Add Fertiliser Application
+              </Button>
+            </FormLayout>
+            <br />
+            <Button variant="primary" submit>
+              Save
+            </Button>{" "}
+            {params.id != "new" && (
+              <Button variant="secondary" onClick={handleDelete}>
+                Delete
+              </Button>
+            )}
+          </Form>
+          <br />
+        </Layout.Section>
+      </Layout>
     </Page>
   );
 }
