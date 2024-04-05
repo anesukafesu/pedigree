@@ -65,7 +65,7 @@ export function EditCultivar() {
         }
         navigate("/suppliers/");
       })
-      .catch((error) => {
+      .catch(() => {
         toast.error("Check your network and try again.");
         alert("Error creating cultivar");
       });
